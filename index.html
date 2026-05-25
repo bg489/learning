@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LISTCH - Cách mạng xã hội</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #14213d;
+      --muted: #667085;
+      --primary: #1f2937;
+      --soft: #eef2f7;
+      --green: #047857;
+      --green-bg: #ecfdf5;
+      --red: #be123c;
+      --red-bg: #fff1f2;
+      --border: #d9e0ea;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #eef2ff 0%, var(--bg) 260px);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container { max-width: 1120px; margin: 0 auto; padding: 28px 16px 60px; }
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+    .eyebrow {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      font-size: 12px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 52px);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+    .desc { color: var(--muted); max-width: 920px; margin: 12px 0 0; font-size: 16px; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .stat { background: var(--soft); border-radius: 18px; padding: 14px; }
+    .stat .label { color: var(--muted); font-size: 13px; }
+    .stat .num { font-size: 30px; font-weight: 900; margin-top: 2px; }
+    .stat.good { background: var(--green-bg); color: var(--green); }
+    .stat.bad { background: var(--red-bg); color: var(--red); }
+    .bar-wrap { margin-top: 18px; }
+    .bar-label { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+    .bar { height: 12px; background: #dfe6ef; border-radius: 999px; overflow: hidden; }
+    .bar-fill { height: 100%; width: 0%; background: var(--primary); border-radius: 999px; transition: width .2s ease; }
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 330px;
+      gap: 14px;
+      margin: 18px 0;
+      align-items: stretch;
+    }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; }
+    button, input { font-family: inherit; }
+    .pill {
+      border: 0;
+      background: var(--soft);
+      color: #263244;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pill.active { background: var(--primary); color: white; }
+    .search {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      outline: none;
+      font-size: 15px;
+    }
+    .search:focus { border-color: var(--primary); }
+    .reset {
+      background: var(--primary);
+      color: #fff;
+      border: 0;
+      border-radius: 16px;
+      padding: 12px 16px;
+      font-weight: 900;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 12px;
+    }
+    .dist-title { margin: 0 0 2px; font-size: 18px; }
+    .dist-desc { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .dist-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .dist-box { background: var(--soft); border-radius: 16px; padding: 10px; text-align: center; }
+    .dist-box b { display: block; font-size: 24px; }
+    .part-title { margin: 26px 0 12px; font-size: 26px; letter-spacing: -0.03em; }
+    .question-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+    .q-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--primary);
+      color: white;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .status {
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 900;
+      display: none;
+    }
+    .status.correct { display: inline-block; background: var(--green-bg); color: var(--green); }
+    .status.wrong { display: inline-block; background: var(--red-bg); color: var(--red); }
+    .question { margin: 14px 0 14px; font-size: 18px; font-weight: 900; }
+    .options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .option {
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 16px;
+      padding: 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
+      min-height: 72px;
+      transition: .15s ease;
+    }
+    .option:hover { border-color: #6b7280; background: #f9fafb; }
+    .letter {
+      background: var(--primary);
+      color: white;
+      min-width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+    }
+    .option.correct { border-color: #34d399; background: var(--green-bg); }
+    .option.wrong { border-color: #fb7185; background: var(--red-bg); }
+    .feedback {
+      display: none;
+      margin-top: 14px;
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+    }
+    .feedback.show { display: block; }
+    .feedback.correct { border-color: #a7f3d0; background: var(--green-bg); }
+    .feedback.wrong { border-color: #fecdd3; background: var(--red-bg); }
+    .feedback b { display: block; margin-bottom: 6px; }
+    .footer-note { text-align: center; color: var(--muted); margin-top: 28px; font-size: 14px; }
+    @media (max-width: 820px) {
+      .stats, .toolbar, .options { grid-template-columns: 1fr; }
+      .dist-grid { grid-template-columns: repeat(4, 1fr); }
+      .hero { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <p class="eyebrow">LISTCH Web App</p>
+      <h1>Cách mạng xã hội</h1>
+      <p class="desc">
+        Bộ câu hỏi tương tác về nguồn gốc, bản chất, lực lượng, động lực, đối tượng, điều kiện, tình thế, thời cơ, phương pháp cách mạng và vấn đề cách mạng xã hội trong thế giới hiện nay.
+      </p>
+
+      <div class="stats">
+        <div class="stat"><div class="label">Tổng câu hỏi</div><div class="num" id="totalNum">40</div></div>
+        <div class="stat"><div class="label">Đã trả lời</div><div class="num" id="answeredNum">0</div></div>
+        <div class="stat good"><div class="label">Đúng</div><div class="num" id="correctNum">0</div></div>
+        <div class="stat bad"><div class="label">Sai</div><div class="num" id="wrongNum">0</div></div>
+      </div>
+
+      <div class="bar-wrap">
+        <div class="bar-label"><span>Tiến độ hoàn thành</span><span id="progressText">0/40</span></div>
+        <div class="bar"><div class="bar-fill" id="progressBar"></div></div>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="panel">
+        <div class="filters">
+          <button class="pill active" data-filter="All">Tất cả</button>
+          <button class="pill" data-filter="Verbatim Questions">Verbatim Questions</button>
+          <button class="pill" data-filter="Inference Questions">Inference Questions</button>
+        </div>
+        <input class="search" id="searchInput" placeholder="Tìm câu hỏi hoặc đáp án..." />
+        <button class="reset" id="resetBtn">Làm lại từ đầu</button>
+      </div>
+      <div class="panel">
+        <h2 class="dist-title">Phân bố đáp án</h2>
+        <p class="dist-desc">Đáp án đúng được chia đều A/B/C/D.</p>
+        <div class="dist-grid" id="distGrid"></div>
+      </div>
+    </section>
+
+    <main id="quiz"></main>
+    <p class="footer-note">LISTCH HTML thuần - mở trực tiếp bằng Chrome, Edge hoặc Cốc Cốc.</p>
+  </div>
+
+<script>
+const questions = [
+  {
+    "id": "V1",
+    "part": "Verbatim Questions",
+    "question": "Nguồn gốc sâu xa của cách mạng xã hội là mâu thuẫn giữa những yếu tố nào?",
+    "options": {
+      "A": "Lực lượng sản xuất tiến bộ và quan hệ sản xuất lạc hậu",
+      "B": "Các phong tục cũ và thói quen sinh hoạt hằng ngày",
+      "C": "Những cảm xúc cá nhân và sở thích của quần chúng",
+      "D": "Các nghi lễ xã hội và hình thức văn hóa truyền thống"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Cách mạng xã hội bắt nguồn sâu xa từ mâu thuẫn giữa lực lượng sản xuất mới, tiến bộ với quan hệ sản xuất cũ, lạc hậu.",
+      "B": "Sai. Phong tục và thói quen có thể ảnh hưởng xã hội nhưng không phải nguồn gốc sâu xa của cách mạng xã hội.",
+      "C": "Sai. Cảm xúc cá nhân không phải nguyên nhân căn bản làm bùng nổ cách mạng xã hội.",
+      "D": "Sai. Nghi lễ và văn hóa truyền thống không phải nguồn gốc sâu xa theo quan điểm duy vật lịch sử."
+    }
+  },
+  {
+    "id": "V2",
+    "part": "Verbatim Questions",
+    "question": "Trong xã hội có giai cấp, nguyên nhân trực tiếp của cách mạng xã hội là gì?",
+    "options": {
+      "A": "Sự thay đổi ngẫu nhiên của khí hậu",
+      "B": "Mâu thuẫn giai cấp và đấu tranh giai cấp",
+      "C": "Sự khác nhau trong thị hiếu nghệ thuật",
+      "D": "Sự phát triển của các lễ hội dân gian"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Khí hậu có thể ảnh hưởng xã hội nhưng không phải nguyên nhân trực tiếp của cách mạng xã hội.",
+      "B": "Đúng. Trong xã hội có giai cấp, đấu tranh giai cấp là nguyên nhân trực tiếp dẫn đến cách mạng xã hội.",
+      "C": "Sai. Thị hiếu nghệ thuật không phải nguyên nhân trực tiếp của cách mạng xã hội.",
+      "D": "Sai. Lễ hội dân gian không phải nguyên nhân trực tiếp của cách mạng xã hội."
+    }
+  },
+  {
+    "id": "V3",
+    "part": "Verbatim Questions",
+    "question": "Theo nghĩa rộng, cách mạng xã hội được hiểu là gì?",
+    "options": {
+      "A": "Sự thay đổi nhỏ trong một lĩnh vực riêng lẻ",
+      "B": "Một vụ thay người cầm quyền trong nội bộ",
+      "C": "Sự thay đổi căn bản về chất của đời sống xã hội",
+      "D": "Một sinh hoạt văn hóa có tính chất cộng đồng"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Thay đổi nhỏ trong một lĩnh vực gần với cải cách hơn là cách mạng xã hội.",
+      "B": "Sai. Thay người cầm quyền có thể chỉ là đảo chính nếu không thay đổi bản chất xã hội.",
+      "C": "Đúng. Cách mạng xã hội là sự thay đổi căn bản về chất trong toàn bộ đời sống xã hội.",
+      "D": "Sai. Sinh hoạt văn hóa cộng đồng không phải cách mạng xã hội."
+    }
+  },
+  {
+    "id": "V4",
+    "part": "Verbatim Questions",
+    "question": "Theo nghĩa hẹp, cách mạng xã hội là đỉnh cao của hình thức đấu tranh nào?",
+    "options": {
+      "A": "Đấu tranh giữa các quan điểm thẩm mỹ",
+      "B": "Đấu tranh giữa các phong tục địa phương",
+      "C": "Đấu tranh giữa các hình thức giải trí",
+      "D": "Đấu tranh giai cấp nhằm giành chính quyền"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Quan điểm thẩm mỹ không phải nội dung chính của cách mạng xã hội theo nghĩa hẹp.",
+      "B": "Sai. Phong tục địa phương không phải đấu tranh giai cấp giành chính quyền.",
+      "C": "Sai. Hình thức giải trí không liên quan bản chất cách mạng xã hội.",
+      "D": "Đúng. Theo nghĩa hẹp, cách mạng xã hội là đỉnh cao của đấu tranh giai cấp, nhằm lật đổ chính quyền cũ và thiết lập chính quyền mới."
+    }
+  },
+  {
+    "id": "V5",
+    "part": "Verbatim Questions",
+    "question": "Cách mạng xã hội khác cải cách xã hội ở điểm cơ bản nào?",
+    "options": {
+      "A": "Cách mạng thay đổi căn bản, cải cách thay đổi từng phần",
+      "B": "Cải cách luôn lật đổ toàn bộ chính quyền xã hội",
+      "C": "Cách mạng chỉ sửa đổi một chính sách rất nhỏ",
+      "D": "Cải cách luôn xóa bỏ hình thái kinh tế cũ"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Cách mạng xã hội thay đổi căn bản bản chất xã hội, còn cải cách thường thay đổi từng phần, từng lĩnh vực.",
+      "B": "Sai. Cải cách thường không lật đổ toàn bộ chính quyền hay thay đổi tận gốc chế độ.",
+      "C": "Sai. Cách mạng không chỉ sửa chính sách nhỏ mà làm biến đổi căn bản xã hội.",
+      "D": "Sai. Cải cách không nhất thiết xóa bỏ hình thái kinh tế - xã hội cũ."
+    }
+  },
+  {
+    "id": "V6",
+    "part": "Verbatim Questions",
+    "question": "Đảo chính khác cách mạng xã hội ở điểm nào?",
+    "options": {
+      "A": "Đảo chính luôn giải phóng toàn bộ xã hội",
+      "B": "Đảo chính chủ yếu thay nhóm cầm quyền",
+      "C": "Đảo chính luôn thay đổi hình thái xã hội",
+      "D": "Đảo chính luôn có quần chúng rộng rãi"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Đảo chính không nhất thiết giải phóng xã hội hay thay đổi bản chất xã hội.",
+      "B": "Đúng. Đảo chính thường là hành động của một nhóm nhằm giành chính quyền, chưa chắc thay đổi bản chất xã hội.",
+      "C": "Sai. Đảo chính thường chỉ thay đổi chính quyền hoặc phe cầm quyền, không nhất thiết thay hình thái xã hội.",
+      "D": "Sai. Đảo chính thường không phải phong trào cách mạng quần chúng rộng lớn."
+    }
+  },
+  {
+    "id": "V7",
+    "part": "Verbatim Questions",
+    "question": "Tính chất của cách mạng xã hội được quy định chủ yếu bởi điều gì?",
+    "options": {
+      "A": "Màu sắc biểu tượng của phong trào",
+      "B": "Số lượng khẩu hiệu được sử dụng",
+      "C": "Mâu thuẫn cơ bản cần giải quyết",
+      "D": "Hình thức trang phục của quần chúng"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Màu sắc biểu tượng không quyết định tính chất cách mạng.",
+      "B": "Sai. Số lượng khẩu hiệu không quy định bản chất cách mạng xã hội.",
+      "C": "Đúng. Tính chất cách mạng phụ thuộc vào mâu thuẫn cơ bản cần giải quyết, giai cấp bị đánh đổ và trật tự mới được thiết lập.",
+      "D": "Sai. Trang phục của quần chúng không quyết định tính chất cách mạng."
+    }
+  },
+  {
+    "id": "V8",
+    "part": "Verbatim Questions",
+    "question": "Lực lượng cách mạng xã hội là gì?",
+    "options": {
+      "A": "Những cá nhân đứng ngoài mọi biến đổi xã hội",
+      "B": "Những nhóm chỉ quan sát phong trào từ xa",
+      "C": "Những người không có lợi ích với cách mạng",
+      "D": "Những giai cấp, tầng lớp tham gia cách mạng"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Đứng ngoài biến đổi xã hội thì không phải lực lượng cách mạng.",
+      "B": "Sai. Chỉ quan sát từ xa không phải lực lượng trực tiếp tham gia cách mạng.",
+      "C": "Sai. Lực lượng cách mạng thường có lợi ích gắn với mục tiêu cách mạng.",
+      "D": "Đúng. Lực lượng cách mạng là các giai cấp, tầng lớp, lực lượng xã hội tham gia và thực hiện mục tiêu cách mạng."
+    }
+  },
+  {
+    "id": "V9",
+    "part": "Verbatim Questions",
+    "question": "Động lực của cách mạng xã hội là những lực lượng như thế nào?",
+    "options": {
+      "A": "Có lợi ích gắn bó sâu sắc và lâu dài với cách mạng",
+      "B": "Chỉ tham gia phong trào một cách hoàn toàn ngẫu nhiên",
+      "C": "Không có mục tiêu hay ý thức chính trị rõ ràng",
+      "D": "Luôn đứng về phía trật tự xã hội phản động cũ"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Động lực cách mạng là những giai cấp, tầng lớp có lợi ích gắn bó sâu sắc, lâu dài, có tính tự giác và tích cực với cách mạng.",
+      "B": "Sai. Tham gia ngẫu nhiên không đủ để trở thành động lực cách mạng.",
+      "C": "Sai. Động lực cách mạng cần có ý thức, mục tiêu và khả năng thúc đẩy phong trào.",
+      "D": "Sai. Đứng về phía trật tự phản động cũ thì không phải động lực cách mạng."
+    }
+  },
+  {
+    "id": "V10",
+    "part": "Verbatim Questions",
+    "question": "Đối tượng của cách mạng xã hội là gì?",
+    "options": {
+      "A": "Những lực lượng tổ chức cách mạng tiến bộ",
+      "B": "Những giai cấp, lực lượng phản động cần bị đánh đổ",
+      "C": "Những người trung lập không liên quan xã hội",
+      "D": "Những thành phần ủng hộ trật tự mới tiến bộ"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Lực lượng tổ chức cách mạng thuộc lực lượng cách mạng, không phải đối tượng bị đánh đổ.",
+      "B": "Đúng. Đối tượng cách mạng là giai cấp hoặc lực lượng phản động cản trở sự phát triển và cần bị đánh đổ.",
+      "C": "Sai. Người trung lập không phải đối tượng chính của cách mạng.",
+      "D": "Sai. Những người ủng hộ trật tự mới thường thuộc lực lượng cách mạng."
+    }
+  },
+  {
+    "id": "V11",
+    "part": "Verbatim Questions",
+    "question": "Giai cấp lãnh đạo cách mạng xã hội phải có đặc điểm gì?",
+    "options": {
+      "A": "Không có hệ tư tưởng và tổ chức rõ ràng",
+      "B": "Đại diện cho phương thức sản xuất lỗi thời",
+      "C": "Có hệ tư tưởng tiến bộ và khả năng tổ chức",
+      "D": "Chỉ bảo vệ lợi ích của lực lượng phản động"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Giai cấp lãnh đạo cần hệ tư tưởng và tổ chức rõ ràng.",
+      "B": "Sai. Giai cấp lãnh đạo cách mạng phải đại diện cho phương thức sản xuất tiến bộ.",
+      "C": "Đúng. Giai cấp lãnh đạo cách mạng có hệ tư tưởng tiến bộ, đại diện xu hướng phát triển và có khả năng tổ chức, tập hợp lực lượng.",
+      "D": "Sai. Bảo vệ lực lượng phản động không phải vai trò của giai cấp lãnh đạo cách mạng."
+    }
+  },
+  {
+    "id": "V12",
+    "part": "Verbatim Questions",
+    "question": "Điều kiện khách quan của cách mạng xã hội là gì?",
+    "options": {
+      "A": "Ý thích riêng của một lãnh tụ cá nhân",
+      "B": "Một khẩu hiệu được lặp lại nhiều lần",
+      "C": "Một kế hoạch hoàn toàn tách khỏi xã hội",
+      "D": "Hoàn cảnh kinh tế - xã hội đã chín muồi"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Điều kiện khách quan không phụ thuộc vào ý thích cá nhân.",
+      "B": "Sai. Khẩu hiệu không phải điều kiện khách quan.",
+      "C": "Sai. Kế hoạch tách khỏi xã hội không phải hoàn cảnh khách quan.",
+      "D": "Đúng. Điều kiện khách quan là hoàn cảnh kinh tế, chính trị, xã hội chín muồi cho cách mạng."
+    }
+  },
+  {
+    "id": "V13",
+    "part": "Verbatim Questions",
+    "question": "Theo Lênin, dấu hiệu đầu tiên của tình thế cách mạng là gì?",
+    "options": {
+      "A": "Giai cấp thống trị không thể thống trị như cũ",
+      "B": "Quần chúng hoàn toàn không còn hành động nào",
+      "C": "Mâu thuẫn xã hội tự biến mất không cần giải quyết",
+      "D": "Lực lượng cách mạng không cần tổ chức lãnh đạo"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Dấu hiệu đầu tiên là tầng lớp trên, giai cấp thống trị không thể duy trì nền thống trị như cũ.",
+      "B": "Sai. Tình thế cách mạng đòi hỏi tính tích cực của quần chúng tăng lên.",
+      "C": "Sai. Mâu thuẫn xã hội không tự biến mất mà trở nên gay gắt.",
+      "D": "Sai. Lực lượng cách mạng vẫn cần tổ chức và lãnh đạo."
+    }
+  },
+  {
+    "id": "V14",
+    "part": "Verbatim Questions",
+    "question": "Dấu hiệu thứ hai của tình thế cách mạng theo Lênin là gì?",
+    "options": {
+      "A": "Giai cấp thống trị ngày càng ổn định tuyệt đối",
+      "B": "Nỗi cùng khổ của quần chúng nặng nề hơn mức thường",
+      "C": "Quần chúng hoàn toàn không còn bất mãn nào",
+      "D": "Xã hội không có khủng hoảng chính trị nào"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Tình thế cách mạng xuất hiện khi giai cấp thống trị khủng hoảng, không ổn định tuyệt đối.",
+      "B": "Đúng. Lênin nêu nỗi cùng khổ và quẫn bách của giai cấp bị áp bức trở nên nặng nề hơn mức bình thường.",
+      "C": "Sai. Quần chúng trong tình thế cách mạng thường bất mãn và không muốn sống như cũ.",
+      "D": "Sai. Tình thế cách mạng thường gắn với khủng hoảng chính trị - xã hội."
+    }
+  },
+  {
+    "id": "V15",
+    "part": "Verbatim Questions",
+    "question": "Dấu hiệu thứ ba của tình thế cách mạng theo Lênin là gì?",
+    "options": {
+      "A": "Tính tích cực cách mạng của quần chúng tăng mạnh",
+      "B": "Quần chúng rút khỏi toàn bộ đời sống xã hội",
+      "C": "Giai cấp bị trị không còn nhu cầu thay đổi",
+      "D": "Giai cấp lãnh đạo từ bỏ mọi hành động cách mạng"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Dấu hiệu thứ ba là tính tích cực của quần chúng tăng lên rõ rệt, họ bị lôi cuốn vào hành động cách mạng.",
+      "B": "Sai. Quần chúng không rút khỏi xã hội mà hành động mạnh hơn.",
+      "C": "Sai. Giai cấp bị trị thường không muốn sống như cũ.",
+      "D": "Sai. Nếu lãnh đạo từ bỏ hành động thì cách mạng khó thành công."
+    }
+  },
+  {
+    "id": "V16",
+    "part": "Verbatim Questions",
+    "question": "Nhân tố chủ quan của cách mạng xã hội bao gồm yếu tố nào?",
+    "options": {
+      "A": "Các biến đổi khí hậu không liên quan xã hội",
+      "B": "Các điều kiện địa lý hoàn toàn tự nhiên",
+      "C": "Ý chí, giác ngộ, tổ chức và lãnh đạo cách mạng",
+      "D": "Những phong tục không liên quan chính trị"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Biến đổi khí hậu không phải nhân tố chủ quan của cách mạng.",
+      "B": "Sai. Điều kiện địa lý thuộc yếu tố khách quan tự nhiên, không phải chủ quan cách mạng.",
+      "C": "Đúng. Nhân tố chủ quan gồm ý chí, trình độ giác ngộ, năng lực tổ chức, tập hợp lực lượng và lãnh đạo cách mạng.",
+      "D": "Sai. Phong tục không liên quan chính trị không phải nhân tố chủ quan quyết định thắng lợi cách mạng."
+    }
+  },
+  {
+    "id": "V17",
+    "part": "Verbatim Questions",
+    "question": "Thời cơ cách mạng là gì?",
+    "options": {
+      "A": "Thời điểm điều kiện khách quan và chủ quan chín muồi",
+      "B": "Khoảng thời gian xã hội hoàn toàn không có mâu thuẫn",
+      "C": "Lúc lực lượng cách mạng chưa chuẩn bị gì cả",
+      "D": "Thời điểm chính quyền cũ mạnh tuyệt đối"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Thời cơ cách mạng là thời điểm đặc biệt khi điều kiện khách quan và nhân tố chủ quan đã chín muồi.",
+      "B": "Sai. Cách mạng nổ ra khi mâu thuẫn gay gắt, không phải khi không có mâu thuẫn.",
+      "C": "Sai. Nếu lực lượng cách mạng chưa chuẩn bị thì khó nắm thời cơ.",
+      "D": "Sai. Khi chính quyền cũ mạnh tuyệt đối, thời cơ cách mạng chưa chín muồi."
+    }
+  },
+  {
+    "id": "V18",
+    "part": "Verbatim Questions",
+    "question": "Phương pháp bạo lực cách mạng là gì?",
+    "options": {
+      "A": "Phương pháp chỉ sửa đổi nhỏ trong luật pháp",
+      "B": "Phương pháp dùng sức mạnh cách mạng để giành chính quyền",
+      "C": "Phương pháp hoàn toàn không đụng đến chính quyền",
+      "D": "Phương pháp chỉ thay đổi sở thích cá nhân"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Sửa đổi nhỏ trong luật pháp gần với cải cách, không phải bạo lực cách mạng.",
+      "B": "Đúng. Bạo lực cách mạng là dùng sức mạnh của lực lượng cách mạng để đánh đổ chính quyền cũ, giành chính quyền.",
+      "C": "Sai. Bạo lực cách mạng trực tiếp hướng đến vấn đề chính quyền.",
+      "D": "Sai. Thay đổi sở thích cá nhân không phải phương pháp cách mạng."
+    }
+  },
+  {
+    "id": "V19",
+    "part": "Verbatim Questions",
+    "question": "Phương pháp hòa bình trong cách mạng có thể diễn ra qua con đường nào?",
+    "options": {
+      "A": "Đấu tranh nghị trường và bầu cử trong điều kiện cho phép",
+      "B": "Phủ nhận mọi hình thức tổ chức lực lượng",
+      "C": "Đứng ngoài toàn bộ đời sống chính trị",
+      "D": "Không cần giành chính quyền bằng cách nào"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Phương pháp hòa bình có thể thông qua đấu tranh nghị trường, bầu cử để giành đa số và lập chính quyền trong điều kiện cho phép.",
+      "B": "Sai. Dù hòa bình vẫn cần tổ chức lực lượng và đường lối đúng.",
+      "C": "Sai. Đứng ngoài chính trị không thể giành chính quyền.",
+      "D": "Sai. Cách mạng xã hội vẫn phải giải quyết vấn đề chính quyền."
+    }
+  },
+  {
+    "id": "V20",
+    "part": "Verbatim Questions",
+    "question": "Trong thế giới hiện nay, cách mạng xã hội thường có thể diễn ra bằng hình thức nào?",
+    "options": {
+      "A": "Chỉ bằng bạo lực giống hệt mọi thời kỳ cũ",
+      "B": "Chỉ bằng đảo chính quân sự trong mọi xã hội",
+      "C": "Thông qua cải tổ, cải cách, đổi mới và chuyển hóa",
+      "D": "Bằng cách xóa bỏ mọi phát triển khoa học"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Hiện nay cách mạng xã hội không nhất thiết lặp lại y nguyên các hình thức bạo lực điển hình trước đây.",
+      "B": "Sai. Đảo chính không phải con đường tất yếu của cách mạng xã hội.",
+      "C": "Đúng. Tài liệu nêu hiện nay biến đổi xã hội tiến bộ có thể diễn ra qua cải tổ, cải cách, đổi mới và chuyển hóa dần dần.",
+      "D": "Sai. Khoa học - công nghệ là yếu tố quan trọng trong phát triển hiện đại."
+    }
+  },
+  {
+    "id": "I1",
+    "part": "Inference Questions",
+    "question": "Một xã hội có công nghệ sản xuất mới nhưng quan hệ sở hữu cũ kìm hãm phát triển. Điều này báo hiệu gì?",
+    "options": {
+      "A": "Mâu thuẫn sâu xa có thể dẫn đến cách mạng xã hội",
+      "B": "Xã hội đã mất hết mọi mâu thuẫn phát triển",
+      "C": "Quan hệ sản xuất cũ luôn thúc đẩy cái mới",
+      "D": "Lực lượng sản xuất không liên quan xã hội"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Đây là mâu thuẫn giữa lực lượng sản xuất tiến bộ và quan hệ sản xuất lạc hậu, nguồn gốc sâu xa của cách mạng xã hội.",
+      "B": "Sai. Ví dụ cho thấy mâu thuẫn đang gay gắt chứ không biến mất.",
+      "C": "Sai. Quan hệ sản xuất cũ đang kìm hãm cái mới.",
+      "D": "Sai. Lực lượng sản xuất có quan hệ trực tiếp với sự vận động xã hội."
+    }
+  },
+  {
+    "id": "I2",
+    "part": "Inference Questions",
+    "question": "Một nhóm quân sự lật đổ chính phủ nhưng vẫn giữ nguyên chế độ bóc lột cũ. Đây gần với hiện tượng nào?",
+    "options": {
+      "A": "Cách mạng xã hội triệt để",
+      "B": "Đảo chính thay nhóm cầm quyền",
+      "C": "Tiến hóa xã hội lâu dài",
+      "D": "Cải cách giáo dục từng phần"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Nếu không thay đổi bản chất xã hội thì chưa phải cách mạng xã hội triệt để.",
+      "B": "Đúng. Đảo chính thường thay nhóm cầm quyền nhưng không nhất thiết thay đổi chế độ xã hội.",
+      "C": "Sai. Đây là hành động giành chính quyền đột ngột, không phải tiến hóa lâu dài.",
+      "D": "Sai. Cải cách giáo dục chỉ là thay đổi một lĩnh vực cụ thể."
+    }
+  },
+  {
+    "id": "I3",
+    "part": "Inference Questions",
+    "question": "Một chính sách cải cách tiền lương làm đời sống tốt hơn nhưng không thay đổi chế độ. Đó là gì?",
+    "options": {
+      "A": "Cách mạng xã hội toàn diện",
+      "B": "Đảo chính chính trị bạo lực",
+      "C": "Cải cách xã hội từng phần",
+      "D": "Tình thế cách mạng chín muồi"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Cách mạng xã hội thay đổi căn bản toàn bộ đời sống xã hội.",
+      "B": "Sai. Cải cách tiền lương không phải đảo chính bạo lực.",
+      "C": "Đúng. Thay đổi tiền lương là cải cách một lĩnh vực, chưa làm biến đổi bản chất chế độ.",
+      "D": "Sai. Một chính sách cải cách chưa đủ để gọi là tình thế cách mạng."
+    }
+  },
+  {
+    "id": "I4",
+    "part": "Inference Questions",
+    "question": "Một cuộc cách mạng muốn thành công nhưng thiếu tổ chức lãnh đạo và chuẩn bị lực lượng. Nó thiếu yếu tố nào?",
+    "options": {
+      "A": "Điều kiện tự nhiên không liên quan",
+      "B": "Mâu thuẫn sâu xa của xã hội",
+      "C": "Sự tồn tại của xã hội có người",
+      "D": "Nhân tố chủ quan của cách mạng"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Vấn đề chính là thiếu tổ chức, lãnh đạo, không phải điều kiện tự nhiên.",
+      "B": "Sai. Mâu thuẫn sâu xa có thể đã tồn tại nhưng chưa đủ nếu thiếu nhân tố chủ quan.",
+      "C": "Sai. Xã hội có người là điều kiện chung, không phải yếu tố được hỏi.",
+      "D": "Đúng. Tổ chức lãnh đạo, giác ngộ, ý chí và khả năng tập hợp lực lượng thuộc nhân tố chủ quan."
+    }
+  },
+  {
+    "id": "I5",
+    "part": "Inference Questions",
+    "question": "Câu “trên không cai trị được như cũ, dưới không muốn sống như cũ” nói về điều gì?",
+    "options": {
+      "A": "Tình thế cách mạng trong xã hội",
+      "B": "Cải cách hành chính thông thường",
+      "C": "Đảo chính nội bộ không quần chúng",
+      "D": "Sinh hoạt văn hóa của cộng đồng"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Đây là cách diễn đạt ngắn gọn về tình thế cách mạng theo Lênin.",
+      "B": "Sai. Cải cách hành chính thông thường không nhất thiết có khủng hoảng xã hội như vậy.",
+      "C": "Sai. Đảo chính nội bộ không nhất thiết có sự vùng lên của quần chúng.",
+      "D": "Sai. Đây là trạng thái chính trị - xã hội, không phải sinh hoạt văn hóa."
+    }
+  },
+  {
+    "id": "I6",
+    "part": "Inference Questions",
+    "question": "Tháng 8/1945, Đảng phát động Tổng khởi nghĩa đúng lúc Nhật đầu hàng. Đây là ví dụ về gì?",
+    "options": {
+      "A": "Bỏ lỡ hoàn toàn thời cơ cách mạng",
+      "B": "Nắm đúng thời cơ cách mạng",
+      "C": "Không cần chuẩn bị lực lượng",
+      "D": "Chỉ thay đổi một chính sách nhỏ"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Cách mạng tháng Tám là ví dụ nắm bắt thời cơ kịp thời.",
+      "B": "Đúng. Khi điều kiện khách quan và chủ quan chín muồi, Đảng phát động Tổng khởi nghĩa đúng thời cơ.",
+      "C": "Sai. Thắng lợi cần cả sự chuẩn bị lực lượng và lãnh đạo.",
+      "D": "Sai. Tổng khởi nghĩa không phải thay đổi chính sách nhỏ mà là giành chính quyền."
+    }
+  },
+  {
+    "id": "I7",
+    "part": "Inference Questions",
+    "question": "Nếu chỉ muốn sửa vài chính sách nhỏ nhưng sợ mọi thay đổi căn bản, đó là khuynh hướng nào?",
+    "options": {
+      "A": "Tả khuynh nóng vội",
+      "B": "Cách mạng triệt để",
+      "C": "Hữu khuynh cải lương",
+      "D": "Tình thế cách mạng"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Tả khuynh là nóng vội, tuyệt đối hóa hành động cách mạng khi điều kiện chưa chín.",
+      "B": "Sai. Sợ thay đổi căn bản không phải cách mạng triệt để.",
+      "C": "Đúng. Chỉ coi trọng cải cách, né tránh đấu tranh căn bản là biểu hiện hữu khuynh, cải lương.",
+      "D": "Sai. Tình thế cách mạng là trạng thái khách quan của xã hội, không phải khuynh hướng này."
+    }
+  },
+  {
+    "id": "I8",
+    "part": "Inference Questions",
+    "question": "Nếu hành động nổi dậy khi quần chúng chưa sẵn sàng, điều kiện chưa chín muồi, dễ rơi vào sai lầm nào?",
+    "options": {
+      "A": "Hữu khuynh thỏa hiệp",
+      "B": "Cải cách xã hội ôn hòa",
+      "C": "Đấu tranh nghị trường hợp pháp",
+      "D": "Tả khuynh nóng vội"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Hữu khuynh là thỏa hiệp, né tránh đấu tranh quyết liệt.",
+      "B": "Sai. Cải cách ôn hòa là thay đổi từng phần, không phải hành động nổi dậy nóng vội.",
+      "C": "Sai. Đấu tranh nghị trường là phương pháp hòa bình trong điều kiện cho phép.",
+      "D": "Đúng. Hành động khi điều kiện chưa chín muồi là biểu hiện tả khuynh, nóng vội."
+    }
+  },
+  {
+    "id": "I9",
+    "part": "Inference Questions",
+    "question": "Một lực lượng cách mạng có quần chúng đông nhưng không có giai cấp lãnh đạo đúng đắn. Nguy cơ là gì?",
+    "options": {
+      "A": "Khó giành thắng lợi và dễ bỏ lỡ thời cơ",
+      "B": "Chắc chắn thắng dù không có tổ chức",
+      "C": "Không cần đường lối hay mục tiêu nào",
+      "D": "Mọi mâu thuẫn xã hội tự giải quyết"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Giai cấp lãnh đạo và tổ chức chính trị đúng đắn rất quan trọng để tập hợp lực lượng và nắm thời cơ.",
+      "B": "Sai. Quần chúng đông nhưng thiếu lãnh đạo vẫn có thể thất bại.",
+      "C": "Sai. Cách mạng cần đường lối, mục tiêu và tổ chức.",
+      "D": "Sai. Mâu thuẫn xã hội không tự giải quyết nếu không có hoạt động cách mạng phù hợp."
+    }
+  },
+  {
+    "id": "I10",
+    "part": "Inference Questions",
+    "question": "Một cuộc cách mạng xác định sai đối tượng cần đánh đổ thì điều gì có thể xảy ra?",
+    "options": {
+      "A": "Mục tiêu cách mạng tự động hoàn thành",
+      "B": "Phương hướng cách mạng dễ bị lệch lạc",
+      "C": "Không cần phân tích giai cấp nữa",
+      "D": "Lực lượng phản động sẽ tự biến mất"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Xác định sai đối tượng làm mục tiêu khó đạt được.",
+      "B": "Đúng. Đối tượng cách mạng là lực lượng cần bị đánh đổ; xác định sai sẽ làm lệch phương hướng và chiến lược.",
+      "C": "Sai. Phân tích giai cấp càng cần thiết để xác định đúng đối tượng.",
+      "D": "Sai. Lực lượng phản động không tự biến mất."
+    }
+  },
+  {
+    "id": "I11",
+    "part": "Inference Questions",
+    "question": "Cách mạng tháng Tám 1945 vừa giải phóng dân tộc vừa thiết lập chính quyền nhân dân. Tính chất của nó là gì?",
+    "options": {
+      "A": "Một cuộc đảo chính thay nhóm cầm quyền",
+      "B": "Một cải cách thuế trong phạm vi hẹp",
+      "C": "Cách mạng dân tộc dân chủ nhân dân",
+      "D": "Một sinh hoạt văn hóa thường niên"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Cách mạng tháng Tám là phong trào quần chúng rộng lớn, không chỉ đảo chính.",
+      "B": "Sai. Nó không phải cải cách thuế hẹp.",
+      "C": "Đúng. Cách mạng tháng Tám có tính chất dân tộc dân chủ nhân dân, đánh đổ thực dân phong kiến và thiết lập chính quyền nhân dân.",
+      "D": "Sai. Đây là sự kiện cách mạng chính trị - xã hội, không phải sinh hoạt văn hóa."
+    }
+  },
+  {
+    "id": "I12",
+    "part": "Inference Questions",
+    "question": "Nếu dùng bạo lực chỉ như mục đích tự thân, không nhằm xây dựng xã hội mới, thì sai ở đâu?",
+    "options": {
+      "A": "Vì bạo lực luôn là mục tiêu cuối cùng",
+      "B": "Vì bạo lực không liên quan chính quyền",
+      "C": "Vì hòa bình luôn không thể xảy ra",
+      "D": "Vì bạo lực chỉ là phương tiện cách mạng"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Bạo lực không phải mục tiêu cuối cùng của cách mạng.",
+      "B": "Sai. Bạo lực cách mạng thường nhằm giành chính quyền khi cần thiết.",
+      "C": "Sai. Phương pháp hòa bình có thể xảy ra trong điều kiện cho phép.",
+      "D": "Đúng. Bạo lực cách mạng là công cụ, phương tiện để đánh đổ chính quyền phản động và thiết lập trật tự mới."
+    }
+  },
+  {
+    "id": "I13",
+    "part": "Inference Questions",
+    "question": "Một xã hội hiện đại tiến bộ bằng đổi mới, cải cách, phát triển khoa học và pháp luật. Điều này phù hợp với ý nào?",
+    "options": {
+      "A": "Cách mạng xã hội hiện nay có hình thức chuyển hóa đa dạng",
+      "B": "Mọi biến đổi xã hội hiện nay đều phải là đảo chính",
+      "C": "Không còn cần phát triển lực lượng sản xuất nữa",
+      "D": "Xã hội hiện đại không còn bất kỳ mâu thuẫn nào"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Tài liệu nêu cách mạng xã hội hiện nay có thể diễn ra qua cải tổ, cải cách, đổi mới và chuyển hóa từng bước.",
+      "B": "Sai. Đảo chính không phải hình thức tất yếu của biến đổi xã hội hiện đại.",
+      "C": "Sai. Phát triển lực lượng sản xuất vẫn là cơ sở quan trọng.",
+      "D": "Sai. Xã hội hiện đại vẫn có nhiều mâu thuẫn, chỉ biểu hiện phức tạp hơn."
+    }
+  },
+  {
+    "id": "I14",
+    "part": "Inference Questions",
+    "question": "Xu hướng đối thoại, hòa giải, hợp tác cùng phát triển hiện nay cho thấy điều gì?",
+    "options": {
+      "A": "Mọi mâu thuẫn xã hội đã mất sạch",
+      "B": "Chiến tranh là xu hướng duy nhất",
+      "C": "Hòa bình và hợp tác ngày càng có ưu thế",
+      "D": "Các quốc gia không cần độc lập tự chủ"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Mâu thuẫn xã hội vẫn còn, chỉ có hình thức biểu hiện khác.",
+      "B": "Sai. Tài liệu nhấn mạnh đối thoại, hòa giải, hòa bình là xu hướng chủ đạo hơn.",
+      "C": "Đúng. Trong thế giới hiện nay, hòa bình, đối thoại, hợp tác và độc lập tự chủ ngày càng chiếm ưu thế.",
+      "D": "Sai. Giữ vững độc lập tự chủ vẫn là xu hướng quan trọng."
+    }
+  },
+  {
+    "id": "I15",
+    "part": "Inference Questions",
+    "question": "Việt Nam hiện nay phát triển thông qua đổi mới và xây dựng nhà nước pháp quyền. Điều này cho thấy gì?",
+    "options": {
+      "A": "Việt Nam đang quay lại chế độ phong kiến",
+      "B": "Việt Nam chỉ dựa vào đảo chính chính trị",
+      "C": "Việt Nam loại bỏ mục tiêu phát triển xã hội",
+      "D": "Việt Nam hướng tới dân giàu, nước mạnh, dân chủ, công bằng, văn minh"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Đổi mới và xây dựng nhà nước pháp quyền không phải quay lại phong kiến.",
+      "B": "Sai. Việt Nam không phát triển bằng đảo chính chính trị.",
+      "C": "Sai. Mục tiêu phát triển xã hội được khẳng định rõ.",
+      "D": "Đúng. Tài liệu kết luận Việt Nam hướng tới mục tiêu dân giàu, nước mạnh, dân chủ, công bằng, văn minh."
+    }
+  },
+  {
+    "id": "I16",
+    "part": "Inference Questions",
+    "question": "Nếu chỉ có tình thế cách mạng nhưng giai cấp lãnh đạo không đủ khả năng hành động, kết quả có thể thế nào?",
+    "options": {
+      "A": "Cách mạng vẫn tự động thắng lợi tuyệt đối",
+      "B": "Cách mạng có thể không nổ ra hoặc thất bại",
+      "C": "Mâu thuẫn xã hội lập tức biến mất hết",
+      "D": "Không cần tổ chức quần chúng tham gia"
+    },
+    "answer": "B",
+    "explain": {
+      "A": "Sai. Tình thế cách mạng chưa đủ để thắng lợi nếu thiếu nhân tố chủ quan.",
+      "B": "Đúng. Không có lãnh đạo và tổ chức đủ mạnh thì thời cơ có thể bị bỏ lỡ, cách mạng có thể thất bại.",
+      "C": "Sai. Mâu thuẫn xã hội không tự biến mất.",
+      "D": "Sai. Tổ chức quần chúng là yếu tố rất quan trọng."
+    }
+  },
+  {
+    "id": "I17",
+    "part": "Inference Questions",
+    "question": "Một phong trào có mục tiêu đánh đổ chính quyền phản động và lập trật tự mới. Đây là dấu hiệu của gì?",
+    "options": {
+      "A": "Một sinh hoạt tập thể không chính trị",
+      "B": "Một cải cách hành chính rất nhỏ",
+      "C": "Một quá trình cách mạng xã hội",
+      "D": "Một thay đổi sở thích tiêu dùng"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Mục tiêu đánh đổ chính quyền phản động là vấn đề chính trị lớn.",
+      "B": "Sai. Cải cách hành chính nhỏ không đánh đổ chính quyền cũ.",
+      "C": "Đúng. Đánh đổ chính quyền phản động và lập trật tự mới là mục tiêu của cách mạng xã hội.",
+      "D": "Sai. Thay đổi sở thích tiêu dùng không liên quan bản chất cách mạng."
+    }
+  },
+  {
+    "id": "I18",
+    "part": "Inference Questions",
+    "question": "Một cuộc bầu cử giúp lực lượng cách mạng giành đa số và lập chính phủ trong điều kiện dân chủ. Đây là phương pháp nào?",
+    "options": {
+      "A": "Bạo lực cách mạng vũ trang",
+      "B": "Đảo chính quân sự bí mật",
+      "C": "Tả khuynh nóng vội",
+      "D": "Phương pháp hòa bình"
+    },
+    "answer": "D",
+    "explain": {
+      "A": "Sai. Bầu cử giành đa số không phải bạo lực vũ trang.",
+      "B": "Sai. Bầu cử công khai khác đảo chính quân sự bí mật.",
+      "C": "Sai. Đây không phải hành động nóng vội khi điều kiện chưa chín.",
+      "D": "Đúng. Giành chính quyền bằng bầu cử, nghị trường trong điều kiện cho phép là phương pháp hòa bình."
+    }
+  },
+  {
+    "id": "I19",
+    "part": "Inference Questions",
+    "question": "Một lực lượng cách mạng không xác định được ai là bạn, ai là đối tượng cần đánh đổ. Họ thiếu nội dung nào?",
+    "options": {
+      "A": "Phân tích lực lượng, động lực và đối tượng cách mạng",
+      "B": "Số lượng biểu tượng trang trí của phong trào",
+      "C": "Những khẩu hiệu văn nghệ trong cộng đồng",
+      "D": "Một hình thức giải trí cho quần chúng"
+    },
+    "answer": "A",
+    "explain": {
+      "A": "Đúng. Muốn cách mạng thành công cần xác định đúng lực lượng, động lực, đối tượng và giai cấp lãnh đạo.",
+      "B": "Sai. Biểu tượng trang trí không giải quyết vấn đề chiến lược cách mạng.",
+      "C": "Sai. Khẩu hiệu văn nghệ không thay thế phân tích lực lượng xã hội.",
+      "D": "Sai. Giải trí không phải nội dung quyết định chiến lược cách mạng."
+    }
+  },
+  {
+    "id": "I20",
+    "part": "Inference Questions",
+    "question": "Một xã hội phát triển bằng cách thay đổi từng bộ phận nhưng vẫn hướng tới tiến bộ lâu dài. Đây gần với khái niệm nào?",
+    "options": {
+      "A": "Sự đứng yên tuyệt đối của xã hội",
+      "B": "Đảo chính thay người cầm quyền",
+      "C": "Tiến hóa xã hội và cải cách tiến bộ",
+      "D": "Phủ nhận toàn bộ phát triển lịch sử"
+    },
+    "answer": "C",
+    "explain": {
+      "A": "Sai. Thay đổi từng bộ phận cho thấy xã hội đang vận động, không đứng yên.",
+      "B": "Sai. Đảo chính là thay quyền lực chính trị, không phải thay đổi từng phần theo hướng tiến bộ lâu dài.",
+      "C": "Đúng. Tiến hóa xã hội và cải cách tiến bộ tạo tiền đề, hỗ trợ quá trình phát triển xã hội.",
+      "D": "Sai. Đây không phủ nhận lịch sử mà là một hình thức phát triển xã hội."
+    }
+  }
+];
+const optionLabels = ["A", "B", "C", "D"];
+let selected = {};
+let currentFilter = "All";
+
+const quizEl = document.getElementById("quiz");
+const searchInput = document.getElementById("searchInput");
+
+function renderDistribution() {
+  const dist = {};
+  optionLabels.forEach(l => dist[l] = questions.filter(q => q.answer === l).length);
+  document.getElementById("distGrid").innerHTML = optionLabels.map(l => `
+    <div class="dist-box"><span>${l}</span><b>${dist[l]}</b></div>
+  `).join("");
+}
+
+function getFilteredQuestions() {
+  const keyword = searchInput.value.trim().toLowerCase();
+  return questions.filter(q => {
+    const matchFilter = currentFilter === "All" || q.part === currentFilter;
+    const text = (q.id + " " + q.question + " " + Object.values(q.options).join(" ")).toLowerCase();
+    return matchFilter && text.includes(keyword);
+  });
+}
+
+function renderQuiz() {
+  const filtered = getFilteredQuestions();
+  let html = "";
+  let lastPart = "";
+
+  filtered.forEach((q, idx) => {
+    if (q.part !== lastPart) {
+      html += `<h2 class="part-title">${q.part}</h2>`;
+      lastPart = q.part;
+    }
+
+    const chosen = selected[q.id];
+    const isAnswered = !!chosen;
+    const isCorrect = chosen === q.answer;
+
+    html += `
+      <article class="question-card">
+        <div class="q-head">
+          <span class="badge">${q.id} · Câu ${idx + 1}</span>
+          <span class="status ${isAnswered ? (isCorrect ? "correct" : "wrong") : ""}">
+            ${isAnswered ? (isCorrect ? "Đúng" : "Sai") : ""}
+          </span>
+        </div>
+        <div class="question">${q.question}</div>
+        <div class="options">
+          ${optionLabels.map(label => {
+            let cls = "";
+            if (isAnswered && label === q.answer) cls = "correct";
+            if (isAnswered && label === chosen && label !== q.answer) cls = "wrong";
+            return `
+              <button class="option ${cls}" onclick="chooseAnswer('${q.id}', '${label}')">
+                <span class="letter">${label}</span>
+                <span>${q.options[label]}</span>
+              </button>
+            `;
+          }).join("")}
+        </div>
+        <div class="feedback ${isAnswered ? "show " + (isCorrect ? "correct" : "wrong") : ""}">
+          ${isAnswered ? `
+            <b>Bạn chọn ${chosen}. Đáp án đúng là ${q.answer}.</b>
+            <div>${q.explain[chosen]}</div>
+            ${!isCorrect ? `<div style="margin-top:8px">${q.explain[q.answer]}</div>` : ""}
+          ` : ""}
+        </div>
+      </article>
+    `;
+  });
+
+  quizEl.innerHTML = html || `<div class="panel">Không tìm thấy câu hỏi phù hợp.</div>`;
+  updateStats();
+}
+
+function chooseAnswer(id, label) {
+  selected[id] = label;
+  renderQuiz();
+}
+
+function updateStats() {
+  const answered = Object.keys(selected).length;
+  const correct = questions.filter(q => selected[q.id] === q.answer).length;
+  const wrong = answered - correct;
+  document.getElementById("totalNum").textContent = questions.length;
+  document.getElementById("answeredNum").textContent = answered;
+  document.getElementById("correctNum").textContent = correct;
+  document.getElementById("wrongNum").textContent = wrong;
+  document.getElementById("progressText").textContent = `${answered}/${questions.length}`;
+  document.getElementById("progressBar").style.width = `${Math.round(answered/questions.length*100)}%`;
+}
+
+document.querySelectorAll(".pill").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".pill").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    renderQuiz();
+  });
+});
+
+searchInput.addEventListener("input", renderQuiz);
+document.getElementById("resetBtn").addEventListener("click", () => {
+  selected = {};
+  renderQuiz();
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
+
+renderDistribution();
+renderQuiz();
+</script>
+</body>
+</html>
