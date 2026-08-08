@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Database Status Memorizer</title>
+  <style>
+    :root{
+      --bg:#08111f; --panel:#0e1a2b; --panel2:#13233a; --text:#eef5ff; --muted:#91a5bf;
+      --accent:#67e8f9; --accent2:#a78bfa; --ok:#34d399; --bad:#fb7185; --warn:#fbbf24;
+      --line:rgba(255,255,255,.09); --shadow:0 20px 60px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:
+      radial-gradient(circle at 10% 0%,rgba(103,232,249,.09),transparent 30%),
+      radial-gradient(circle at 100% 20%,rgba(167,139,250,.12),transparent 35%),var(--bg);color:var(--text)}
+    button,input,select{font:inherit}
+    .app{max-width:1200px;margin:auto;padding:28px 18px 70px}
+    .hero{display:grid;grid-template-columns:1.3fr .7fr;gap:18px;align-items:stretch}
+    .box{background:rgba(14,26,43,.88);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+    .hero-main{padding:28px}
+    .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:800}
+    h1{margin:8px 0 10px;font-size:clamp(32px,5vw,54px);line-height:1.02}
+    .sub{color:var(--muted);max-width:760px;line-height:1.6}
+    .stats{padding:22px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{background:var(--panel2);border:1px solid var(--line);padding:16px;border-radius:16px}
+    .stat b{display:block;font-size:28px}.stat span{font-size:12px;color:var(--muted)}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}
+    .tab,.btn{border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer}
+    .tab.active,.btn.primary{background:linear-gradient(135deg,var(--accent),#38bdf8);color:#062033;border-color:transparent;font-weight:800}
+    .btn.ghost:hover,.tab:hover{border-color:rgba(103,232,249,.45)}
+    .view{display:none}.view.active{display:block}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .search{flex:1;min-width:260px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:11px 14px}
+    select{background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:10px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .card{padding:18px;background:rgba(14,26,43,.88);border:1px solid var(--line);border-radius:18px}
+    .card h3{margin:0 0 8px;font-size:18px;word-break:break-word}
+    .meaning{color:var(--muted);line-height:1.5;margin-bottom:13px}
+    .chips{display:flex;gap:7px;flex-wrap:wrap}
+    .chip{font-size:12px;padding:7px 9px;background:rgba(103,232,249,.09);border:1px solid rgba(103,232,249,.18);border-radius:999px;color:#d7fbff}
+    .none{color:#6f8198;font-style:italic;font-size:13px}
+    .master-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+    .master{font-size:12px;color:var(--muted)} .master input{accent-color:#34d399}
+    .study-wrap{max-width:760px;margin:25px auto}
+    .flash{min-height:390px;padding:34px;display:flex;flex-direction:column;justify-content:center;text-align:center;position:relative;overflow:hidden}
+    .flash:before{content:"";position:absolute;inset:-30%;background:radial-gradient(circle,rgba(103,232,249,.08),transparent 43%);pointer-events:none}
+    .flash .index{color:var(--muted);font-size:13px}.flash h2{font-size:clamp(26px,6vw,44px);margin:15px 0 12px;word-break:break-word}
+    .answer{display:none;margin-top:18px}.answer.show{display:block}
+    .answer .meaning{font-size:18px}.answer .chips{justify-content:center}
+    .actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .quizbox{padding:26px}
+    .question{font-size:24px;line-height:1.35;margin:8px 0 18px}
+    .options{display:grid;gap:10px}
+    .opt{display:flex;gap:10px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+    .opt input{transform:scale(1.2);accent-color:#22d3ee}
+    .feedback{margin-top:15px;padding:13px;border-radius:12px;display:none}.feedback.ok{display:block;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.3)}
+    .feedback.bad{display:block;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.3)}
+    .scoreline{color:var(--muted);font-size:13px;margin-bottom:10px}
+    .typebox{padding:26px}
+    .status-input{width:100%;min-height:110px;resize:vertical;background:#091522;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:13px}
+    .hint{font-size:13px;color:var(--muted);margin-top:9px}
+    .progress{height:10px;border-radius:999px;background:#07101c;overflow:hidden;border:1px solid var(--line);margin-top:10px}
+    .bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--ok));transition:.25s}
+    .small{font-size:12px;color:var(--muted)}
+    footer{margin-top:30px;text-align:center;color:var(--muted);font-size:12px}
+    @media(max-width:780px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.app{padding:18px 12px 50px}.hero-main{padding:22px}.flash{padding:24px;min-height:350px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <section class="hero">
+    <div class="box hero-main">
+      <div class="eyebrow">Sunrise Parking · Study Tool</div>
+      <h1>Database Status Memorizer</h1>
+      <div class="sub">Học theo chiều khó hơn: nhìn định nghĩa/chức năng → tự nhớ tên bảng → sau đó mới kiểm tra tên bảng và status. Có flashcard, quiz và chế độ tự gõ tên bảng.</div>
+      <div style="margin-top:18px">
+        <div class="small">Tiến độ đã thuộc</div>
+        <div class="progress"><div class="bar" id="progressBar"></div></div>
+        <div class="small" id="progressText" style="margin-top:7px"></div>
+      </div>
+    </div>
+    <div class="box stats">
+      <div class="stat"><b id="tableCount">0</b><span>Tổng số bảng</span></div>
+      <div class="stat"><b id="statusTableCount">0</b><span>Bảng có status</span></div>
+      <div class="stat"><b id="uniqueStatusCount">0</b><span>Status khác nhau</span></div>
+      <div class="stat"><b id="masteredCount">0</b><span>Bảng đã thuộc</span></div>
+    </div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="list">Danh sách</button>
+    <button class="tab" data-tab="flash">Flashcards</button>
+    <button class="tab" data-tab="quiz">Quiz</button>
+    <button class="tab" data-tab="type">Gõ tên bảng</button>
+  </nav>
+
+  <section id="list" class="view active">
+    <div class="toolbar">
+      <input id="search" class="search" placeholder="Tìm theo tên bảng, ý nghĩa hoặc status..." />
+      <select id="filter">
+        <option value="all">Tất cả bảng</option>
+        <option value="with">Có status</option>
+        <option value="without">Không có status</option>
+        <option value="mastered">Đã thuộc</option>
+        <option value="unmastered">Chưa thuộc</option>
+      </select>
+      <button class="btn ghost" id="resetMastered">Reset tiến độ</button>
+    </div>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <section id="flash" class="view">
+    <div class="study-wrap">
+      <div class="box flash" id="flashCard">
+        <div class="index" id="flashIndex"></div>
+        <div class="eyebrow">Định nghĩa / chức năng</div>
+        <h2 id="flashMeaning"></h2>
+        <div class="small">Hãy tự nhớ tên bảng trước khi mở đáp án.</div>
+        <button class="btn primary" id="revealBtn" style="margin-top:18px">Hiện tên bảng + status</button>
+        <div class="answer" id="flashAnswer">
+          <div class="small">Tên bảng</div>
+          <h2 id="flashTable" style="font-size:30px;margin-top:6px"></h2>
+          <div class="small" style="margin:12px 0 8px">Status</div>
+          <div class="chips" id="flashStatuses"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="prevFlash">← Trước</button>
+        <button class="btn ghost" id="randomFlash">Ngẫu nhiên</button>
+        <button class="btn ghost" id="nextFlash">Sau →</button>
+      </div>
+      <div class="actions">
+        <label class="master"><input type="checkbox" id="flashMaster" /> Đánh dấu bảng này đã thuộc</label>
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="view">
+    <div class="study-wrap box quizbox">
+      <div class="scoreline" id="quizScore">Đúng 0 / 0</div>
+      <div class="eyebrow">Định nghĩa → tên bảng</div>
+      <div class="question" id="quizQuestion"></div>
+      <div class="options" id="quizOptions"></div>
+      <div class="feedback" id="quizFeedback"></div>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn primary" id="checkQuiz">Kiểm tra</button>
+        <button class="btn ghost" id="nextQuiz">Câu khác</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="type" class="view">
+    <div class="study-wrap box typebox">
+      <div class="eyebrow">Active recall · Định nghĩa → tên bảng</div>
+      <div class="question" id="typeMeaning"></div>
+      <input class="search" id="typeInput" placeholder="Gõ tên bảng, ví dụ: Parking_sessions" autocomplete="off" />
+      <div class="hint">Không phân biệt hoa/thường. Có thể dùng dấu cách thay cho dấu gạch dưới.</div>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn primary" id="checkType">Kiểm tra</button>
+        <button class="btn ghost" id="showType">Hiện đáp án</button>
+        <button class="btn ghost" id="nextType">Định nghĩa khác</button>
+      </div>
+      <div class="feedback" id="typeFeedback"></div>
+    </div>
+  </section>
+
+  <footer>Dữ liệu học được tạo từ tài liệu “các tên database.docx” của bạn.</footer>
+</div>
+
+<script>
+const DATA = [{"table": "Building_change_requests", "meaning": "chuyển tòa", "statuses": ["pending", "approve", "rejected", "cancelled"]}, {"table": "Buildings", "meaning": "tòa nhà", "statuses": []}, {"table": "Email_verification_tokens", "meaning": "email gửi mã otp đăng ký", "statuses": []}, {"table": "Floor_mismatch_cases", "meaning": "handle xe khác loại đỗ sai tầng dành riêng cho xe đó", "statuses": ["locked and panelized", "waiting user", "towed", "cancelled"]}, {"table": "Hourly_slot_reservations", "meaning": "xe hơi đặt trước slot với staff và với user", "statuses": ["pending", "paid", "failed"]}, {"table": "Monthly_passes", "meaning": "các gói user đã đăng ký", "statuses": ["pending payment", "active", "expired", "cancelled"]}, {"table": "Package_plans", "meaning": "bảng giá cố định của gói tháng đã được gán cho tòa nhà", "statuses": ["active", "inactive"]}, {"table": "Parking_floors", "meaning": "các tầng trong tòa nhà", "statuses": ["active", "locked", "maintenance", "inactive"]}, {"table": "Parking_sessions", "meaning": "phiên xe vào", "statuses": ["active", "pending payment", "complete", "cancelled"]}, {"table": "Parking_slots", "meaning": "của từng slot ô tô trong tầng của tòa nhà đó", "statuses": ["available", "reserved", "occupied", "maintenance", "locked", "conflict"]}, {"table": "Password_reset_token", "meaning": "token của reset password", "statuses": []}, {"table": "Payments", "meaning": "của tất cả các giao dịch", "statuses": []}, {"table": "Pricing_policies", "meaning": "giá tiền theo lượt hoặc theo giờ với khách không có gói tháng", "statuses": ["active", "inactive"]}, {"table": "Profile_update_tokens", "meaning": "thay đổi profile", "statuses": []}, {"table": "Qr_passes", "meaning": "thông tin về các gói tháng sau khi đã đăng kí", "statuses": ["active", "expired", "locked", "cancelled"]}, {"table": "Slot_registrations", "meaning": "thông tin về slot đã đăng ký qua gói tháng", "statuses": ["Pending payment", "paid", "cancelled", "expired"]}, {"table": "Staff_profiles", "meaning": "thông tin hồ sơ của staff", "statuses": ["active", "inactive"]}, {"table": "Temporary_qr_cards", "meaning": "các qr tạm cho các xe không có qr tháng", "statuses": ["ready", "in use", "completed", "lost", "locked"]}, {"table": "User_notifications", "meaning": "thông báo của user", "statuses": ["unread", "read", "action taken"]}, {"table": "Users", "meaning": "thông tin của user", "statuses": ["pending", "active", "locked", "inactive"]}, {"table": "Vehicles", "meaning": "chứa các thông tin xe user đã đăng ký", "statuses": ["pending", "approve", "rejected"]}, {"table": "Violation_types", "meaning": "các loại vi phạm cơ bản và staff có thể ghi vào phiên gửi xe", "statuses": ["active", "inactive"]}, {"table": "Violations", "meaning": "thông tin vi phạm của từng phiên xe", "statuses": ["open", "resolved", "collected", "cancelled"]}, {"table": "Wrong_slot_case", "meaning": "thông tin vi phạm khi ô tô đã đỗ trên một slot đã đăng kí", "statuses": ["allowed", "waiting user", "user moved", "penalized", "cancelled"]}];
+const STORAGE_KEY = "db-status-memorizer-mastered-v1";
+let mastered = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+
+function saveMastered(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([...mastered]));
+  updateProgress();
+}
+function updateProgress(){
+  $("#tableCount").textContent = DATA.length;
+  $("#statusTableCount").textContent = DATA.filter(x=>x.statuses.length).length;
+  $("#uniqueStatusCount").textContent = new Set(DATA.flatMap(x=>x.statuses.map(s=>s.toLowerCase()))).size;
+  $("#masteredCount").textContent = mastered.size;
+  const pct = Math.round(mastered.size / DATA.length * 100);
+  $("#progressBar").style.width = pct + "%";
+  $("#progressText").textContent = `${mastered.size}/${DATA.length} bảng · ${pct}%`;
+}
+function chips(item){
+  return item.statuses.length
+    ? item.statuses.map(s=>`<span class="chip">${esc(s)}</span>`).join("")
+    : `<span class="none">Không có status trong tài liệu</span>`;
+}
+function renderCards(){
+  const q = $("#search").value.trim().toLowerCase();
+  const f = $("#filter").value;
+  const rows = DATA.filter(x=>{
+    const text = [x.table,x.meaning,...x.statuses].join(" ").toLowerCase();
+    if(q && !text.includes(q)) return false;
+    if(f==="with" && !x.statuses.length) return false;
+    if(f==="without" && x.statuses.length) return false;
+    if(f==="mastered" && !mastered.has(x.table)) return false;
+    if(f==="unmastered" && mastered.has(x.table)) return false;
+    return true;
+  });
+  $("#cards").innerHTML = rows.map(x=>`
+    <article class="card">
+      <h3>${esc(x.table)}</h3>
+      <div class="meaning">${esc(x.meaning)}</div>
+      <div class="chips">${chips(x)}</div>
+      <div class="master-row">
+        <span class="small">${x.statuses.length ? x.statuses.length + " status" : "Không có status"}</span>
+        <label class="master"><input class="masterCheck" data-table="${esc(x.table)}" type="checkbox" ${mastered.has(x.table)?"checked":""}> Đã thuộc</label>
+      </div>
+    </article>`).join("");
+  $$(".masterCheck").forEach(el=>el.addEventListener("change", e=>{
+    e.target.checked ? mastered.add(e.target.dataset.table) : mastered.delete(e.target.dataset.table);
+    saveMastered();
+  }));
+}
+$("#search").addEventListener("input", renderCards);
+$("#filter").addEventListener("change", renderCards);
+$("#resetMastered").addEventListener("click", ()=>{
+  if(confirm("Xóa toàn bộ tiến độ đã thuộc?")){ mastered.clear(); saveMastered(); renderCards(); renderFlash(); }
+});
+
+$$(".tab").forEach(b=>b.addEventListener("click", ()=>{
+  $$(".tab").forEach(x=>x.classList.remove("active")); b.classList.add("active");
+  $$(".view").forEach(v=>v.classList.remove("active")); $("#"+b.dataset.tab).classList.add("active");
+}));
+
+let flashIndex = 0;
+function renderFlash(){
+  const x = DATA[flashIndex];
+  $("#flashIndex").textContent = `${flashIndex+1} / ${DATA.length}`;
+  $("#flashTable").textContent = x.table;
+  $("#flashMeaning").textContent = x.meaning;
+  $("#flashStatuses").innerHTML = chips(x);
+  $("#flashAnswer").classList.remove("show");
+  $("#revealBtn").style.display = "inline-block";
+  $("#flashMaster").checked = mastered.has(x.table);
+}
+$("#revealBtn").addEventListener("click", ()=>{$("#flashAnswer").classList.add("show");$("#revealBtn").style.display="none"});
+$("#prevFlash").addEventListener("click", ()=>{flashIndex=(flashIndex-1+DATA.length)%DATA.length;renderFlash()});
+$("#nextFlash").addEventListener("click", ()=>{flashIndex=(flashIndex+1)%DATA.length;renderFlash()});
+$("#randomFlash").addEventListener("click", ()=>{flashIndex=Math.floor(Math.random()*DATA.length);renderFlash()});
+$("#flashMaster").addEventListener("change", e=>{const t=DATA[flashIndex].table;e.target.checked?mastered.add(t):mastered.delete(t);saveMastered();renderCards()});
+
+const STATUS_TABLES = DATA.filter(x=>x.statuses.length);
+const ALL_STATUSES = [...new Set(DATA.flatMap(x=>x.statuses.map(s=>s.toLowerCase())))];
+let quizItem = null, quizTotal=0, quizCorrect=0;
+function sample(arr,n){return [...arr].sort(()=>Math.random()-.5).slice(0,n)}
+function newQuiz(){
+  quizItem = DATA[Math.floor(Math.random()*DATA.length)];
+  const distractors = sample(DATA.filter(x=>x.table!==quizItem.table), 3);
+  const opts = sample([quizItem,...distractors], 4);
+  $("#quizQuestion").innerHTML = `Định nghĩa: <b>${esc(quizItem.meaning)}</b><br><span class="small">Đây là bảng nào?</span>`;
+  $("#quizOptions").innerHTML = opts.map(x=>`<label class="opt"><input type="radio" name="quizTable" value="${esc(x.table)}"> <span>${esc(x.table)}</span></label>`).join("");
+  $("#quizFeedback").className = "feedback"; $("#quizFeedback").textContent="";
+}
+$("#checkQuiz").addEventListener("click", ()=>{
+  const selected = $("#quizOptions input:checked");
+  if(!selected){
+    const fb=$("#quizFeedback"); fb.className="feedback bad"; fb.textContent="Hãy chọn một tên bảng trước.";
+    return;
+  }
+  const ok = selected.value === quizItem.table;
+  quizTotal++; if(ok) quizCorrect++;
+  $("#quizScore").textContent = `Đúng ${quizCorrect} / ${quizTotal}`;
+  const fb=$("#quizFeedback"); fb.className="feedback "+(ok?"ok":"bad");
+  const statusText = quizItem.statuses.length ? quizItem.statuses.map(esc).join(", ") : "Không có status trong tài liệu";
+  fb.innerHTML = ok
+    ? `✅ Chính xác! <b>${esc(quizItem.table)}</b><br><span class="small">Status: ${statusText}</span>`
+    : `❌ Chưa đúng. Đáp án là <b>${esc(quizItem.table)}</b>.<br><span class="small">Status: ${statusText}</span>`;
+});
+$("#nextQuiz").addEventListener("click", newQuiz);
+
+let typeItem = null;
+function normalizeTableName(v){
+  return v.trim().toLowerCase().replace(/\s+/g,"_");
+}
+function newType(){
+  typeItem = DATA[Math.floor(Math.random()*DATA.length)];
+  $("#typeMeaning").innerHTML = `Định nghĩa: <b>${esc(typeItem.meaning)}</b><br><span class="small">Hãy gõ tên bảng tương ứng.</span>`;
+  $("#typeInput").value="";
+  $("#typeFeedback").className="feedback"; $("#typeFeedback").textContent="";
+}
+$("#checkType").addEventListener("click", ()=>{
+  const got = normalizeTableName($("#typeInput").value);
+  const correct = normalizeTableName(typeItem.table);
+  const ok = got === correct;
+  const fb=$("#typeFeedback"); fb.className="feedback "+(ok?"ok":"bad");
+  const statusText = typeItem.statuses.length ? typeItem.statuses.map(esc).join(", ") : "Không có status trong tài liệu";
+  fb.innerHTML = ok
+    ? `✅ Đúng: <b>${esc(typeItem.table)}</b><br><span class="small">Status: ${statusText}</span>`
+    : `❌ Chưa đúng. Đáp án: <b>${esc(typeItem.table)}</b><br><span class="small">Status: ${statusText}</span>`;
+});
+$("#showType").addEventListener("click", ()=>{
+  const fb=$("#typeFeedback"); fb.className="feedback ok";
+  const statusText = typeItem.statuses.length ? typeItem.statuses.map(esc).join(", ") : "Không có status trong tài liệu";
+  fb.innerHTML=`Tên bảng: <b>${esc(typeItem.table)}</b><br><span class="small">Status: ${statusText}</span>`;
+});
+$("#nextType").addEventListener("click", newType);
+$("#typeInput").addEventListener("keydown", e=>{ if(e.key==="Enter") $("#checkType").click(); });
+
+updateProgress(); renderCards(); renderFlash(); newQuiz(); newType();
+</script>
+</body>
+</html>
